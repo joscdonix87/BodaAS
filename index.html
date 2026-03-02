@@ -10,60 +10,94 @@
 <style>
 body{
   margin:0;
-  background:#f5eee6;
+  background:#f4efe6;
   display:flex;
   justify-content:center;
   align-items:center;
   height:100vh;
-  font-family:Georgia, serif;
+  font-family:'Georgia', serif;
 }
 
 .wrapper{
   position:relative;
-  width:320px;
-  height:220px;
+  width:340px;
+  height:230px;
   perspective:1000px;
+  cursor:pointer;
 }
 
 .envelope{
   position:absolute;
   width:100%;
   height:100%;
-  background:#c59d5f;
-  border-radius:6px;
+  background:#1f5f3b;
+  border-radius:8px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
 
 .flap{
   position:absolute;
   width:100%;
   height:100%;
-  background:#b68c4b;
+  background:#174a2c;
   clip-path: polygon(0 0, 100% 0, 50% 60%);
   transform-origin: top;
+  border-radius:8px;
 }
 
 .letter{
   position:absolute;
-  width:90%;
-  height:90%;
-  background:white;
-  top:5%;
-  left:5%;
-  border-radius:10px;
-  padding:20px;
+  width:92%;
+  height:92%;
+  background:#fffaf0;
+  top:4%;
+  left:4%;
+  border-radius:12px;
+  padding:25px;
   box-sizing:border-box;
   transform: translateY(60%);
   opacity:0;
   overflow:auto;
+  text-align:center;
+  position:relative;
+}
+
+.letter::before,
+.letter::after{
+  content:"🌹";
+  position:absolute;
+  font-size:28px;
+}
+
+.letter::before{
+  top:10px;
+  left:15px;
+}
+
+.letter::after{
+  bottom:10px;
+  right:15px;
+}
+
+h3{
+  color:#1f5f3b;
+  margin-bottom:10px;
 }
 
 button{
-  background:#c59d5f;
+  background:#b22222;
   color:white;
   border:none;
-  padding:8px 14px;
-  border-radius:6px;
+  padding:10px 18px;
+  border-radius:20px;
   cursor:pointer;
+  font-size:14px;
+  margin-top:10px;
+  transition:0.3s;
+}
+
+button:hover{
+  background:#8b1a1a;
 }
 </style>
 </head>
@@ -80,46 +114,47 @@ button{
 
 <script>
 
-// 🔹 TU URL AQUI
-const scriptURL = "PEGA_AQUI_TU_URL_DEL_APP_SCRIPT";
-
-let invitadoData = null;
+/// 🔥 AQUI DEBES PONER TU URL DE APPS SCRIPT (LA QUE TERMINA EN /exec)
+const scriptURL = "https://script.google.com/macros/library/d/1L4CeQd2Ujl4lxczPz2OB9jkGT59jFZ4OIva35-sRrg6zgRmuN8KtsE8w/21";
 
 const params = new URLSearchParams(window.location.search);
 const codigo = params.get("codigo");
 
-if(!codigo){
-  document.body.innerHTML = "<h2>Invitación no válida</h2>";
+if(codigo){
+
+  fetch(scriptURL + "?codigo=" + codigo)
+  .then(res => res.json())
+  .then(data => {
+
+      document.getElementById("contenido").innerHTML = `
+        <h3>Querida ${data.familia}</h3>
+        <p>Nos complace invitarles a nuestra boda</p>
+        <p><strong>Cupos:</strong> ${data.cantidad}</p>
+        <hr>
+        <p>⛪ Ceremonia 3:00 PM</p>
+        <p>🎉 Recepción 4:00 PM</p>
+        <button onclick="confirmar('${codigo}')">Confirmar asistencia</button>
+      `;
+
+  })
+  .catch(error => {
+      document.getElementById("contenido").innerHTML = "Error al cargar invitación";
+  });
+
+} else {
+  document.getElementById("contenido").innerHTML = "Falta código en la URL";
 }
 
-fetch(scriptURL + "?codigo=" + codigo)
-.then(res => res.json())
-.then(data => {
 
-  if(!data.valido){
-    document.body.innerHTML = "<h2>Invitación no válida</h2>";
-    return;
-  }
+// 🔥 FUNCIÓN CONFIRMAR
+function confirmar(codigo){
+  fetch(scriptURL + "?confirmar=" + codigo)
+  .then(res => res.json())
+  .then(data => {
+     alert("Asistencia confirmada correctamente");
+  });
+}
 
-  invitadoData = data;
-
-  document.getElementById("contenido").innerHTML = `
-    <h3>Querida Familia ${data.familia}</h3>
-    <p><strong>Cupos:</strong> ${data.cantidad}</p>
-    <hr>
-    <p>⛪ 3:00 PM</p>
-    <p>🎉 4:00 PM</p>
-    <br>
-    <button id="confirmarBtn" onclick="confirmar()">Confirmar asistencia</button>
-  `;
-
-  if(String(data.confirmado).trim().toUpperCase() === "SI"){
-    const btn = document.getElementById("confirmarBtn");
-    btn.innerText = "Ya confirmado 💕";
-    btn.disabled = true;
-  }
-
-});
 
 // 🔥 ANIMACIÓN GSAP
 let opened = false;
@@ -144,25 +179,13 @@ document.getElementById("sobre").addEventListener("click", function(){
   }, "-=0.4");
 
   tl.to(".letter", {
-    y:-40,
+    y:-50,
     opacity:1,
     duration:1,
     ease:"power2.out"
   }, "-=0.6");
 
 });
-
-function confirmar(){
-  fetch(scriptURL + "?confirmar=" + codigo)
-  .then(res => res.json())
-  .then(data => {
-    if(data.ok){
-      const btn = document.getElementById("confirmarBtn");
-      btn.innerText = "Ya confirmado 💕";
-      btn.disabled = true;
-    }
-  });
-}
 
 </script>
 
