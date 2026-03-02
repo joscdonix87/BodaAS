@@ -1,161 +1,211 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invitación</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitación A & S</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --verde-sobre: #4a6741;
+            --verde-oscuro: #364d30;
+            --crema: #fdfaf0;
+            --blanco: #ffffff;
+            --dorado-suave: #d4af37;
+        }
 
-<style>
-body{
-  margin:0;
-  font-family: 'Georgia', serif;
-  background:#f5eee6;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  overflow:hidden;
-}
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e8e4d9; /* Fondo de página neutro */
+            font-family: 'Playfair Display', serif;
+        }
 
-/* SOBRE */
-.envelope-wrapper{
-  position:relative;
-  width:300px;
-  height:200px;
-  cursor:pointer;
-}
+        .envelope-wrapper {
+            position: relative;
+            cursor: pointer;
+            width: 450px;
+            height: 300px;
+        }
 
-.envelope{
-  width:100%;
-  height:100%;
-  background:#c59d5f;
-  position:absolute;
-  bottom:0;
-  border-radius:5px;
-}
+        /* El Sobre */
+        .envelope {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: var(--verde-sobre);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            overflow: visible;
+        }
 
-.flap{
-  position:absolute;
-  top:0;
-  width:100%;
-  height:100%;
-  background:#b68c4b;
-  clip-path: polygon(0 0, 100% 0, 50% 60%);
-  transform-origin: top;
-  transition: transform 0.6s ease;
-}
+        /* Solapa superior (Triángulo) */
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 225px solid transparent;
+            border-right: 225px solid transparent;
+            border-top: 160px solid var(--verde-oscuro);
+            transform-origin: top;
+            z-index: 4;
+        }
 
-.letter{
-  position:absolute;
-  width:90%;
-  height:90%;
-  background:white;
-  top:5%;
-  left:5%;
-  border-radius:10px;
-  padding:20px;
-  box-sizing:border-box;
-  transform: translateY(100%);
-  transition: transform 0.6s ease;
-  overflow:auto;
-}
+        /* Cuerpo del sobre (partes frontales para dar profundidad) */
+        .envelope::before {
+            content: "";
+            position: absolute;
+            z-index: 3;
+            border-left: 225px solid transparent;
+            border-right: 225px solid transparent;
+            border-bottom: 150px solid var(--verde-sobre);
+            bottom: 0;
+            left: 0;
+        }
 
-.open .flap{
-  transform: rotateX(180deg);
-}
+        .envelope::after {
+            content: "";
+            position: absolute;
+            z-index: 3;
+            border-left: 150px solid var(--verde-oscuro);
+            border-top: 150px solid transparent;
+            border-bottom: 150px solid transparent;
+            left: 0;
+            top: 0;
+        }
 
-.open .letter{
-  transform: translateY(0);
-}
+        .right-flap {
+            position: absolute;
+            z-index: 3;
+            border-right: 150px solid var(--verde-oscuro);
+            border-top: 150px solid transparent;
+            border-bottom: 150px solid transparent;
+            right: 0;
+            top: 0;
+        }
 
-button{
-  background:#c59d5f;
-  color:white;
-  border:none;
-  padding:10px 15px;
-  border-radius:6px;
-  cursor:pointer;
-}
+        /* La Invitación (Carta) */
+        .card {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 260px;
+            background-color: var(--crema);
+            z-index: 2;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            border: 2px solid var(--dorado-suave);
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
-button:disabled{
-  background:gray;
-}
-</style>
+        .card h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.5rem;
+            color: var(--verde-oscuro);
+            margin: 0;
+        }
+
+        .card p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-top: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .card .divider {
+            width: 50px;
+            height: 1px;
+            background: var(--dorado-suave);
+            margin: 15px auto;
+        }
+
+        /* Sello de lacre */
+        .seal {
+            position: absolute;
+            top: 140px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background: var(--crema);
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: var(--verde-oscuro);
+            font-size: 0.8rem;
+            border: 1px solid #ddd;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="envelope-wrapper" id="sobre">
-  <div class="envelope"></div>
-  <div class="flap"></div>
-  <div class="letter" id="contenido">
-    Cargando invitación...
-  </div>
-</div>
+    <div class="envelope-wrapper" id="envelopeContainer">
+        <div class="flap"></div>
+        <div class="seal">A & S</div>
+        <div class="envelope">
+            <div class="right-flap"></div>
+            <div class="card">
+                <h1>A & S</h1>
+                <div class="divider"></div>
+                <p>Estás Invitado</p>
+                <small>Nuestra Boda</small>
+            </div>
+        </div>
+    </div>
 
-<script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-const scriptURL = "https://script.google.com/macros/s/AKfycbz9eBPKaLDZe_h-6FgxfxYHwI_zise80KY782p66L3nT4HwVGdFAZYqdKjp7gzqtLXR/exec";
+    <script>
+        const container = document.getElementById('envelopeContainer');
+        const tl = gsap.timeline({ paused: true });
 
-let invitadoData = null;
+        // Definimos la secuencia de animación
+        tl.to(".flap", {
+            duration: 0.6,
+            rotationX: 180,
+            ease: "power2.inOut",
+            z: 10
+        })
+        .to(".seal", {
+            duration: 0.4,
+            opacity: 0,
+            y: -20,
+            ease: "power2.in"
+        }, "-=0.4")
+        .to(".card", {
+            duration: 1,
+            y: -180, // Sube la carta para que se vea
+            scale: 1.05,
+            ease: "back.out(1.2)"
+        }, "-=0.1");
 
-const params = new URLSearchParams(window.location.search);
-const codigo = params.get("codigo");
-
-if(!codigo){
-  document.body.innerHTML = "<h2>Invitación no válida</h2>";
-}
-
-fetch(scriptURL + "?codigo=" + codigo)
-.then(res => res.json())
-.then(data => {
-
-  if(!data.valido){
-    document.body.innerHTML = "<h2>Invitación no válida</h2>";
-    return;
-  }
-
-  invitadoData = data;
-
-  document.getElementById("contenido").innerHTML = `
-    <h3>Querida Familia ${data.familia}</h3>
-    <p><strong>Cupos reservados:</strong> ${data.cantidad}</p>
-    <hr>
-    <p>⛪ Ceremonia: 3:00 PM</p>
-    <p>🎉 Recepción: 4:00 PM</p>
-    <br>
-    <button id="confirmarBtn" onclick="confirmar()">Confirmar asistencia</button>
-  `;
-
-  if(String(data.confirmado).trim().toUpperCase() === "SI"){
-    const btn = document.getElementById("confirmarBtn");
-    btn.innerText = "Ya confirmado 💕";
-    btn.disabled = true;
-  }
-
-})
-.catch(error => {
-  document.getElementById("contenido").innerHTML = "Error al cargar invitación";
-});
-
-function confirmar(){
-  fetch(scriptURL + "?confirmar=" + codigo)
-  .then(res => res.json())
-  .then(data => {
-    if(data.ok){
-      const btn = document.getElementById("confirmarBtn");
-      btn.innerText = "Ya confirmado 💕";
-      btn.disabled = true;
-    }
-  });
-}
-
-/* ABRIR SOBRE */
-document.getElementById("sobre").addEventListener("click", function(){
-  this.classList.toggle("open");
-});
-
-</script>
-
+        // Eventos para abrir/cerrar al hacer clic
+        let isOpen = false;
+        container.addEventListener('click', () => {
+            if (!isOpen) {
+                tl.play();
+            } else {
+                tl.reverse();
+            }
+            isOpen = !isOpen;
+        });
+    </script>
 </body>
 </html>
