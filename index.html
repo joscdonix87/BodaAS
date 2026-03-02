@@ -1,32 +1,158 @@
-fetch(scriptURL + "?codigo=" + codigo)
-  .then(res => res.json())
-  .then(data => {
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invitación</title>
 
-    if (!data.valido) {
-      document.body.innerHTML = `
-        <div style="text-align:center;margin-top:100px;">
-          <h2>Invitación no válida</h2>
+<style>
+body {
+    margin: 0;
+    font-family: 'Georgia', serif;
+    background: #f8f5f0;
+    text-align: center;
+    color: #333;
+}
+
+.container {
+    margin-top: 60px;
+}
+
+.card {
+    background: white;
+    max-width: 500px;
+    margin: auto;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+h1 {
+    font-weight: normal;
+}
+
+.info {
+    margin: 15px 0;
+    font-size: 18px;
+}
+
+button {
+    padding: 12px 25px;
+    border: none;
+    background: #b08d57;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:disabled {
+    background: gray;
+    cursor: not-allowed;
+}
+
+.links a {
+    display: block;
+    margin: 10px 0;
+    color: #b08d57;
+    text-decoration: none;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div id="contenido"></div>
+        <br>
+        <button id="confirmarBtn" onclick="confirmar()">Confirmar asistencia</button>
+        <div class="links">
+            <a href="https://www.waze.com/en/live-map/directions/santuario-nuestra-senora-de-fatima-carretera-a-puerta-del-diablo-planes-de-renderos,-san-salvador" target="_blank">
+                ⛪ Ver ubicación Iglesia (3:00 PM)
+            </a>
+            <a href="https://www.waze.com/en/live-map/directions/la-quinta-sv-prolongacion-calle-las-colinas-planes-de-renderos,-san-salvador" target="_blank">
+                📍 Ver ubicación Recepción (4:00 PM)
+            </a>
         </div>
-      `;
-      return;
-    }
+    </div>
+</div>
 
-    invitadoData = data;
+<script>
 
-    document.getElementById("contenido").innerHTML = `
-      <div class="info"><strong>Querida Familia ${data.familia}</strong></div>
-      <div class="info">🎟 Cupos reservados: ${data.cantidad}</div>
+const scriptURL = "PEGA_AQUI_TU_URL_EXEC";
 
-      <div class="info"><strong>⛪ Ceremonia Religiosa</strong></div>
-      <div class="info">3:00 PM</div>
+const params = new URLSearchParams(window.location.search);
+const codigo = params.get("codigo");
 
-      <div class="info"><strong>📍 Recepción</strong></div>
-      <div class="info">4:00 PM</div>
+let invitadoData = null;
+
+if (!codigo) {
+    mostrarNoValido();
+} else {
+    fetch(scriptURL + "?codigo=" + codigo)
+        .then(res => res.json())
+        .then(data => {
+
+            if (!data.valido) {
+                mostrarNoValido();
+                return;
+            }
+
+            invitadoData = data;
+
+            document.getElementById("contenido").innerHTML = `
+                <h1>Nos Casamos</h1>
+                <div class="info"><strong>Querida Familia ${data.familia}</strong></div>
+                <div class="info">🎟 Cupos reservados: ${data.cantidad}</div>
+                <div class="info"><strong>⛪ Ceremonia:</strong> 3:00 PM</div>
+                <div class="info"><strong>🎉 Recepción:</strong> 4:00 PM</div>
+            `;
+
+            if (String(data.confirmado).trim().toUpperCase() === "SI") {
+                document.getElementById("confirmarBtn").innerText = "Ya confirmado ❤️";
+                document.getElementById("confirmarBtn").disabled = true;
+            }
+
+        })
+        .catch(() => mostrarNoValido());
+}
+
+function confirmar() {
+
+    if (!codigo) return;
+
+    fetch(scriptURL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "codigo=" + codigo
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (!data.valido) {
+            mostrarNoValido();
+            return;
+        }
+
+        document.getElementById("confirmarBtn").innerText = "Confirmación exitosa ❤️";
+        document.getElementById("confirmarBtn").disabled = true;
+
+    })
+    .catch(() => alert("Error al confirmar"));
+}
+
+function mostrarNoValido() {
+    document.body.innerHTML = `
+        <div style="margin-top:120px;text-align:center;">
+            <h2>Invitación no válida</h2>
+        </div>
     `;
+}
 
-    if (String(data.confirmado).trim().toUpperCase() === "SI") {
-      document.getElementById("confirmarBtn").innerText = "Ya confirmado ❤️";
-      document.getElementById("confirmarBtn").disabled = true;
-    }
+</script>
 
-  });
+</body>
+</html>
