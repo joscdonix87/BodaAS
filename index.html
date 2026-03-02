@@ -6,151 +6,154 @@
 <title>Invitación</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: 'Georgia', serif;
-    background: #f8f5f0;
-    text-align: center;
-    color: #333;
+body{
+  margin:0;
+  font-family: 'Georgia', serif;
+  background:#f5eee6;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  overflow:hidden;
 }
 
-.container {
-    margin-top: 60px;
+/* SOBRE */
+.envelope-wrapper{
+  position:relative;
+  width:300px;
+  height:200px;
+  cursor:pointer;
 }
 
-.card {
-    background: white;
-    max-width: 500px;
-    margin: auto;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+.envelope{
+  width:100%;
+  height:100%;
+  background:#c59d5f;
+  position:absolute;
+  bottom:0;
+  border-radius:5px;
 }
 
-h1 {
-    font-weight: normal;
+.flap{
+  position:absolute;
+  top:0;
+  width:100%;
+  height:100%;
+  background:#b68c4b;
+  clip-path: polygon(0 0, 100% 0, 50% 60%);
+  transform-origin: top;
+  transition: transform 0.6s ease;
 }
 
-.info {
-    margin: 15px 0;
-    font-size: 18px;
+.letter{
+  position:absolute;
+  width:90%;
+  height:90%;
+  background:white;
+  top:5%;
+  left:5%;
+  border-radius:10px;
+  padding:20px;
+  box-sizing:border-box;
+  transform: translateY(100%);
+  transition: transform 0.6s ease;
+  overflow:auto;
 }
 
-button {
-    padding: 12px 25px;
-    border: none;
-    background: #b08d57;
-    color: white;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
+.open .flap{
+  transform: rotateX(180deg);
 }
 
-button:disabled {
-    background: gray;
-    cursor: not-allowed;
+.open .letter{
+  transform: translateY(0);
 }
 
-.links a {
-    display: block;
-    margin: 10px 0;
-    color: #b08d57;
-    text-decoration: none;
+button{
+  background:#c59d5f;
+  color:white;
+  border:none;
+  padding:10px 15px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+button:disabled{
+  background:gray;
 }
 </style>
-
 </head>
+
 <body>
 
-<div class="container">
-    <div class="card">
-        <div id="contenido"></div>
-        <br>
-        <button id="confirmarBtn" onclick="confirmar()">Confirmar asistencia</button>
-        <div class="links">
-            <a href="https://www.waze.com/en/live-map/directions/santuario-nuestra-senora-de-fatima-carretera-a-puerta-del-diablo-planes-de-renderos,-san-salvador" target="_blank">
-                ⛪ Ver ubicación Iglesia (3:00 PM)
-            </a>
-            <a href="https://www.waze.com/en/live-map/directions/la-quinta-sv-prolongacion-calle-las-colinas-planes-de-renderos,-san-salvador" target="_blank">
-                📍 Ver ubicación Recepción (4:00 PM)
-            </a>
-        </div>
-    </div>
+<div class="envelope-wrapper" id="sobre">
+  <div class="envelope"></div>
+  <div class="flap"></div>
+  <div class="letter" id="contenido">
+    Cargando invitación...
+  </div>
 </div>
 
 <script>
 
 const scriptURL = "https://script.google.com/macros/s/AKfycbz9eBPKaLDZe_h-6FgxfxYHwI_zise80KY782p66L3nT4HwVGdFAZYqdKjp7gzqtLXR/exec";
 
+let invitadoData = null;
+
 const params = new URLSearchParams(window.location.search);
 const codigo = params.get("codigo");
 
-let invitadoData = null;
-
-if (!codigo) {
-    mostrarNoValido();
-} else {
-    fetch(scriptURL + "?codigo=" + codigo)
-        .then(res => res.json())
-        .then(data => {
-
-            if (!data.valido) {
-                mostrarNoValido();
-                return;
-            }
-
-            invitadoData = data;
-
-            document.getElementById("contenido").innerHTML = `
-                <h1>Nos Casamos</h1>
-                <div class="info"><strong>Querida Familia ${data.familia}</strong></div>
-                <div class="info">🎟 Cupos reservados: ${data.cantidad}</div>
-                <div class="info"><strong>⛪ Ceremonia:</strong> 3:00 PM</div>
-                <div class="info"><strong>🎉 Recepción:</strong> 4:00 PM</div>
-            `;
-
-            if (String(data.confirmado).trim().toUpperCase() === "SI") {
-                document.getElementById("confirmarBtn").innerText = "Ya confirmado ❤️";
-                document.getElementById("confirmarBtn").disabled = true;
-            }
-
-        })
-        .catch(() => mostrarNoValido());
+if(!codigo){
+  document.body.innerHTML = "<h2>Invitación no válida</h2>";
 }
 
-function confirmar() {
+fetch(scriptURL + "?codigo=" + codigo)
+.then(res => res.json())
+.then(data => {
 
-    if (!codigo) return;
+  if(!data.valido){
+    document.body.innerHTML = "<h2>Invitación no válida</h2>";
+    return;
+  }
 
-    fetch(scriptURL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "codigo=" + codigo
-    })
-    .then(res => res.json())
-    .then(data => {
+  invitadoData = data;
 
-        if (!data.valido) {
-            mostrarNoValido();
-            return;
-        }
+  document.getElementById("contenido").innerHTML = `
+    <h3>Querida Familia ${data.familia}</h3>
+    <p><strong>Cupos reservados:</strong> ${data.cantidad}</p>
+    <hr>
+    <p>⛪ Ceremonia: 3:00 PM</p>
+    <p>🎉 Recepción: 4:00 PM</p>
+    <br>
+    <button id="confirmarBtn" onclick="confirmar()">Confirmar asistencia</button>
+  `;
 
-        document.getElementById("confirmarBtn").innerText = "Confirmación exitosa ❤️";
-        document.getElementById("confirmarBtn").disabled = true;
+  if(String(data.confirmado).trim().toUpperCase() === "SI"){
+    const btn = document.getElementById("confirmarBtn");
+    btn.innerText = "Ya confirmado 💕";
+    btn.disabled = true;
+  }
 
-    })
-    .catch(() => alert("Error al confirmar"));
+})
+.catch(error => {
+  document.getElementById("contenido").innerHTML = "Error al cargar invitación";
+});
+
+function confirmar(){
+  fetch(scriptURL + "?confirmar=" + codigo)
+  .then(res => res.json())
+  .then(data => {
+    if(data.ok){
+      const btn = document.getElementById("confirmarBtn");
+      btn.innerText = "Ya confirmado 💕";
+      btn.disabled = true;
+    }
+  });
 }
 
-function mostrarNoValido() {
-    document.body.innerHTML = `
-        <div style="margin-top:120px;text-align:center;">
-            <h2>Invitación no válida</h2>
-        </div>
-    `;
-}
+/* ABRIR SOBRE */
+document.getElementById("sobre").addEventListener("click", function(){
+  this.classList.toggle("open");
+});
 
 </script>
 
