@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invitación A&S</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#f5f1e8,#1f3d2b);
+  font-family: 'Georgia', serif;
+  overflow:hidden;
+}
+
+.sobre{
+  width:320px;
+  height:220px;
+  position:relative;
+  perspective:1000px;
+  cursor:pointer;
+}
+
+.base{
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:#f5f1e8;
+  border-radius:6px;
+}
+
+.tapa{
+  position:absolute;
+  width:100%;
+  height:100%;
+  background:#e9e4d8;
+  clip-path:polygon(0 0,100% 0,50% 60%);
+  transform-origin:top;
+}
+
+.sello{
+  position:absolute;
+  width:70px;
+  height:70px;
+  background:#1f3d2b;
+  border-radius:50%;
+  top:75px;
+  left:125px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#f5f1e8;
+  font-weight:bold;
+  font-size:20px;
+  z-index:5;
+}
+
+.carta{
+  position:absolute;
+  width:280px;
+  height:380px;
+  background:white;
+  top:-180px;
+  left:20px;
+  border-radius:6px;
+  padding:15px;
+  box-sizing:border-box;
+  transform:translateY(200px);
+  opacity:0;
+  overflow-y:auto;
+}
+
+h2{
+  text-align:center;
+  color:#1f3d2b;
+}
+
+.info{
+  font-size:14px;
+  margin:8px 0;
+}
+
+.link{
+  font-size:13px;
+  color:#1f3d2b;
+  text-decoration:none;
+  display:block;
+  margin-bottom:6px;
+}
+
+button{
+  background:#1f3d2b;
+  color:white;
+  border:none;
+  padding:10px;
+  width:100%;
+  border-radius:5px;
+  cursor:pointer;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sobre" id="sobre">
+  <div class="base"></div>
+  <div class="tapa" id="tapa"></div>
+  <div class="sello" id="sello">A&S</div>
+
+  <div class="carta" id="carta">
+    <h2>Invitación</h2>
+
+    <div id="contenido"></div>
+
+    <button id="confirmarBtn" onclick="confirmar()">Confirmar asistencia</button>
+  </div>
+</div>
+
+<script>
+
+const scriptURL = "https://script.google.com/macros/s/AKfycbz9eBPKaLDZe_h-6FgxfxYHwI_zise80KY782p66L3nT4HwVGdFAZYqdKjp7gzqtLXR/exec";
+const codigo = new URLSearchParams(window.location.search).get("codigo");
+
+let invitadoData = null;
+
+document.getElementById("sello").addEventListener("click", function(){
+
+  let tl = gsap.timeline();
+
+  tl.to("#sello",{scale:0,duration:0.4})
+    .to("#tapa",{rotationX:-180,duration:1})
+    .to("#carta",{y:-20,opacity:1,duration:1},"-=0.5");
+
+  cargarDatos();
+});
+
+function cargarDatos(){
+
+  if(!codigo){
+    document.getElementById("contenido").innerHTML = "<p>Código no proporcionado.</p>";
+    return;
+  }
+
+  fetch(scriptURL+"?codigo="+codigo)
+  .then(res=>res.json())
+  .then(data=>{
+    if(data.error){
+      document.getElementById("contenido").innerHTML = "<p>Código inválido.</p>";
+      document.getElementById("confirmarBtn").style.display="none";
+      return;
+    }
+
+    invitadoData = data;
+
+    document.getElementById("contenido").innerHTML = `
+      <div class="info"><strong>Querida Familia ${data.familia}</strong></div>
+      <div class="info">🎟 Cupos reservados: ${data.cantidad}</div>
+      <div class="info">🔐 Código: ${codigo}</div>
+
+      <div class="info"><strong>⛪ Ceremonia Religiosa</strong></div>
+      <div class="info">3:00 PM</div>
+      <a class="link" target="_blank" href="https://www.waze.com/en/live-map/directions/santuario-nuestra-senora-de-fatima-carretera-a-puerta-del-diablo-planes-de-renderos,-san-salvador?place=w.177471624.1774781780.25783291">📍 Iglesia</a>
+
+      <div class="info"><strong>📍 Recepción</strong></div>
+      <div class="info">4:00 PM</div>
+      <a class="link" target="_blank" href="https://www.waze.com/en/live-map/directions/la-quinta-sv-prolongacion-calle-las-colinas-planes-de-renderos,-san-salvador?place=w.177471624.1774847316.24009403">📍 Recepción</a>
+    `;
+
+    if(data.confirmado === "SI"){
+      document.getElementById("confirmarBtn").innerText="Ya confirmado ❤️";
+      document.getElementById("confirmarBtn").disabled=true;
+    }
+  });
+}
+
+function confirmar(){
+
+  fetch(scriptURL,{
+    method:"POST",
+    body:JSON.stringify({codigo:codigo})
+  })
+  .then(res=>res.text())
+  .then(resp=>{
+    if(resp==="OK"){
+      alert("Confirmación realizada ❤️");
+      location.reload();
+    }else if(resp==="YA_CONFIRMADO"){
+      alert("Ya habías confirmado.");
+    }else{
+      alert("Error al confirmar.");
+    }
+  });
+}
+
+</script>
+
+</body>
+</html>
